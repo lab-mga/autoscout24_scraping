@@ -1,0 +1,2 @@
+1. meter en el csv con todos los datos los hipervínculos a cada coche.
+2. Hacer otro csv donde directamente me saque los coches que tengan un precio de +7k y tengan +-1 año de matriculacion y +-5k de kms. Esto lo suyo sería hacer una media por esos valores y los casos españoles que estén por debajo de la media sacaros en un segundo csv.

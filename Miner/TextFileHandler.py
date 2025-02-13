@@ -22,6 +22,15 @@ class TextFileHandler:
         else:
             print("Data not loaded. Call load_data() first.")
 
+
+    """
+    Funcion que devuelve un diccionario con la ciudad y el pais
+    """
     def export_capoluogo_column(self):
-        capoluogo_column = self.df['Capoluogo'].tolist()
-        return capoluogo_column
+        if self.df is not None:
+            
+            #Recupero del csv la columna de ciudad y pais
+            capoluogo_pais_dict = self.df.set_index(self.df['Capoluogo'].str.lower())['Pais'].to_dict()
+            return capoluogo_pais_dict
+        else:
+            print("Data not loaded. Call load_data() first.")

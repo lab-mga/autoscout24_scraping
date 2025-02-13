@@ -9,7 +9,7 @@ class DataProcessor:
         return pd.read_csv(self.input_file)
 
     def remove_duplicates(self, df):
-        columns_to_check_duplicates = ['make', 'model', 'mileage', 'fuel-type', 'first-registration']
+        columns_to_check_duplicates = ['make', 'model', 'mileage', 'fuel-type', 'first-registration','url']
         return df.drop_duplicates(subset=columns_to_check_duplicates, keep='first')
 
     def preprocess_data(self, df):

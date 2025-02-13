@@ -6,14 +6,18 @@ from Miner.TextFileHandler import TextFileHandler
 import os
 
 
-def main(scrape=False):
+def main(scrape=False, analisys=False):
+    print('Scrapping ' + str(scrape) + ' analisys ' + str(analisys))
     zip_list = where_to_search()
     if scrape:
         scrape_autoscout(zip_list)
-    # Data Processing
+    
     data_preprocessed = preprocess()
-    # Mileage-Price Regression
-    perform_regression(data_preprocessed)
+    if analisys:
+        # Data Processing
+        data_preprocessed = preprocess()
+        # Mileage-Price Regression
+        perform_regression(data_preprocessed)
 
 
 def perform_regression(data_preprocessed):
@@ -49,27 +53,30 @@ def where_to_search():
     handler = TextFileHandler(zip_list_file_path)
     handler.load_data_csv()
     zip_list = handler.export_capoluogo_column()
-    zip_list = [item.lower() for item in zip_list]
+    #zip_list = [item.lower() for item in zip_list
     return zip_list
 
 
 if __name__ == "__main__":
-    make = "audi"
-    model = "rs6"
+    make = "lexus"
+    model = "ux-250h"
     version = ""
-    year_from = "2013"
-    year_to = "2018"
+    year_from = "2018"
+    year_to = "2022"
     power_from = ""
     power_to = ""
-    powertype = "kw"
-    num_pages = 20
-    zipr = 100
+    powertype = "kw" 
+    num_pages = 1
+    zipr = 250
 
     zip_list_file_path = 'Miner/capoluoghi.csv'
     downloaded_listings_file = f'listings/listings_{make}_{model}.csv'
     output_file_preprocessed = f'listings/listings_{make}_{model}_preprocessed.csv'
+
     # Create the "listings" folder if it doesn't exist
     if not os.path.exists("listings"):
         os.makedirs("listings")
 
-    main(scrape=True)
+    # Run the main function    
+    main(scrape=True, analisys=False)
+    print('finished')
