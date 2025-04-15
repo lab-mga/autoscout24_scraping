@@ -11,8 +11,8 @@ def main(scrape=False, analisys=False):
     zip_list = where_to_search()
     if scrape:
         scrape_autoscout(zip_list)
-    
-    data_preprocessed = preprocess()
+        data_preprocessed = preprocess()
+
     if analisys:
         # Data Processing
         data_preprocessed = preprocess()
@@ -38,6 +38,15 @@ def preprocess():
     data_preprocessed = processor.preprocess_data(data_no_duplicates)
     data_rounded = processor.round(data_preprocessed, 1000)
     processor.save_processed_data(data_rounded, output_file_preprocessed)
+
+    ##Ahora vamos con el csv de oportunidades
+    
+    print("quitando duplicados de oportunidades")
+    processorOportunidades = DataProcessor(oportunities_file)
+    dataOportunidades = processorOportunidades.read_data()
+    data_no_duplicates = processorOportunidades.remove_duplicates(dataOportunidades)
+
+    
     return data_preprocessed
 
 
@@ -45,6 +54,7 @@ def scrape_autoscout(zip_list):
     scraper = AutoScout24Scraper(make, model, version, year_from, year_to, power_from, power_to, powertype, zip_list,
                                  zipr)
     scraper.scrape(num_pages, True)
+    scraper.filter_cars(oportunities_file)
     scraper.save_to_csv(downloaded_listings_file)
     scraper.quit_browser()
 
@@ -58,11 +68,11 @@ def where_to_search():
 
 
 if __name__ == "__main__":
-    make = "lexus"
-    model = "ux-250h"
+    make = "volkswagen"
+    model = "golf-(alle)"
     version = ""
     year_from = "2018"
-    year_to = "2022"
+    year_to = "2024"
     power_from = ""
     power_to = ""
     powertype = "kw" 
@@ -72,6 +82,7 @@ if __name__ == "__main__":
     zip_list_file_path = 'Miner/capoluoghi.csv'
     downloaded_listings_file = f'listings/listings_{make}_{model}.csv'
     output_file_preprocessed = f'listings/listings_{make}_{model}_preprocessed.csv'
+    oportunities_file = 'listings/oportunidades.csv'
 
     # Create the "listings" folder if it doesn't exist
     if not os.path.exists("listings"):

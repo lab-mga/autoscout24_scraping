@@ -1,5 +1,6 @@
 import time
 import pandas as pd
+import numpy as np
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
@@ -37,6 +38,10 @@ class AutoScout24Scraper:
         self.browser = webdriver.Chrome(options=self.options)
 
     def generate_urls(self, num_pages, zip):
+        """
+        Genera una lista de URLs para realizar scraping basándose en el número de páginas y el código postal proporcionados.
+        Itera a través de las URLs base y agrega parámetros de paginación para cada página.
+        """
         url_list = []
         for base_url in self.base_url.values():
             url_list.append(base_url.format(self.make, self.model, self.version, self.year_from, self.year_to,
@@ -96,8 +101,62 @@ class AutoScout24Scraper:
 
                 # Guardo en un lsitado lo recuperado del scrapping
                 self.listing_frame = self.listing_frame._append(frame, ignore_index=True)
-                time.sleep(1)
+
+                ##time.sleep(0.3)
                 i+=1
+            print("****************************************")
+            print("Coches scrapeados: "+str(i))
+            print("****************************************")
+            
+
+
+    #################################################################
+    ## función filter_cars que lea el DataFrame y guarde en otro DataFrame los coches del país "DE" que tengan 
+    ## un precio entre un 10% y un 15% más que los del país "ES" 
+    ## y con una diferencia de kilometraje de 5,000 arriba o abajo.
+    #################################################################
+
+
+
+    def filter_cars(self, directory):
+
+        print("Empiezo con el filter_cars")
+        ##ADEMÁS DE PROBARLÁ, SI FUNCIONA, FALTARIA GUARDARLA EN CSV#
+        es_cars = self.listing_frame[self.listing_frame['country'] == 'ES']
+        de_cars = self.listing_frame[self.listing_frame['country'] == 'DE']
+        
+        filtered_cars = pd.DataFrame(columns=self.listing_frame.columns)
+
+        ##El algoritmo está al revés. Está sacando precios alemanes mas caros que los españoles.
+        for _, es_car in es_cars.iterrows():
+            es_price = float(es_car['price'].replace('€', '').replace(',', '').strip())
+            es_mileage = int(es_car['mileage'].replace(' km', '').replace(',', '').strip())
+
+            price_min = es_price * 1.05
+            price_max = es_price * 1.25
+
+            mileage_min = es_mileage - 10000
+            mileage_max = es_mileage + 10000
+
+
+            matching_de_cars = de_cars[
+                (de_cars['price'].apply(lambda x: float(x.replace('€', '').replace(',', '').strip())).between(price_min, price_max)) &
+                (de_cars['mileage'].apply(lambda x: int(x.replace(' km', '').replace(',', '').strip())).between(mileage_min, mileage_max))
+            ].copy()
+
+            if not matching_de_cars.empty:
+                ##matching_de_cars['origen'] = es_car['url']
+                matching_de_cars.loc[:, 'origen'] = es_car['url']
+
+
+
+            filtered_cars = pd.concat([filtered_cars, matching_de_cars])
+
+        filtered_cars = filtered_cars.drop_duplicates()
+        filtered_cars.to_csv(directory, index=False)
+        print("Termino con el filter_cars")
+
+
 
     def save_to_csv(self, filename="listings.csv"):
 

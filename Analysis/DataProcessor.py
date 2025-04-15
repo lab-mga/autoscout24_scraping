@@ -16,6 +16,7 @@ class DataProcessor:
         df.loc[df['first-registration'] == 'new', 'mileage'] = 0
         return df[df['mileage'] != 'unknown'].reset_index(drop=True)
 
+    ##Redondea 
     def round(self, df, by):
         df['mileage'] = df['mileage'].astype(int)
         df['mileage_grouped'] = (df['mileage'] // by) * by
@@ -24,3 +25,5 @@ class DataProcessor:
     def save_processed_data(self, df, output_file):
         df.to_csv(output_file, index=False)
         print("Modified data saved to", output_file)
+
+    ##funcion que que lea 
