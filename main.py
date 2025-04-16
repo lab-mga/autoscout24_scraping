@@ -5,9 +5,12 @@ from Miner.TextFileHandler import TextFileHandler
 
 import os
 
+##Enfocar más este main como una clase, sobre todo que ahora con flask
 
 def main(scrape=False, analisys=False):
     print('Scrapping ' + str(scrape) + ' analisys ' + str(analisys))
+    
+   ##Este método no haria, ya lo tengo en bbdd, seria borrar el where_To_search 
     zip_list = where_to_search()
     if scrape:
         scrape_autoscout(zip_list)
@@ -17,20 +20,12 @@ def main(scrape=False, analisys=False):
         # Data Processing
         data_preprocessed = preprocess()
         # Mileage-Price Regression
-        perform_regression(data_preprocessed)
 
 
-def perform_regression(data_preprocessed):
-    grouped_data = data_preprocessed.groupby('mileage_grouped')['price'].agg(['mean', 'std']).reset_index()
-    mileage_values = grouped_data['mileage_grouped']
-    average_price_values = grouped_data['mean']
-    std_deviation_values = grouped_data['std']
-    regression = MileagePriceRegression(mileage_values, average_price_values, std_deviation_values)
-    predicted_prices, best_degree = regression.do_regression()
-    # Mileage-Price Plotting
-    regression.plot_mileage_price(predicted_prices, best_degree)
 
 
+
+##Sobre esto, sería hacerlo antes de guardar en bbdd¿??, igualmente esto esta raro, habrí que darle una vuelta
 def preprocess():
     processor = DataProcessor(downloaded_listings_file)
     data = processor.read_data()
@@ -40,13 +35,11 @@ def preprocess():
     processor.save_processed_data(data_rounded, output_file_preprocessed)
 
     ##Ahora vamos con el csv de oportunidades
-    
     print("quitando duplicados de oportunidades")
     processorOportunidades = DataProcessor(oportunities_file)
     dataOportunidades = processorOportunidades.read_data()
     data_no_duplicates = processorOportunidades.remove_duplicates(dataOportunidades)
 
-    
     return data_preprocessed
 
 
@@ -79,12 +72,19 @@ if __name__ == "__main__":
     num_pages = 1
     zipr = 250
 
+    ##Esto seria recupperar de bbdd
     zip_list_file_path = 'Miner/capoluoghi.csv'
+
+    ##esto seía guardar en la bbdd?? No sé si primero en una temporal y luego en una final o como, porque aqui tengo el normal y el preprocesado
     downloaded_listings_file = f'listings/listings_{make}_{model}.csv'
     output_file_preprocessed = f'listings/listings_{make}_{model}_preprocessed.csv'
+    ##############################
+
+    ##Esto seria guardarlo igual en tabla, aunq tengo el TestSTrategy que hace algo parecido pero distinto, habría que vuer cual me renta mas
     oportunities_file = 'listings/oportunidades.csv'
 
     # Create the "listings" folder if it doesn't exist
+    #Esto ya no haria falta si voy por bbdd
     if not os.path.exists("listings"):
         os.makedirs("listings")
 
