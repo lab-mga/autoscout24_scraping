@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from models.resultado_Scrap import CocheModel
+from models.resultado_scrap import CocheModel
 
 
 class AutoScout24Scraper:
@@ -41,6 +41,8 @@ class AutoScout24Scraper:
         Selecciona la URL base correcta según el país.
         """
         url_list = []
+        if num_pages is None:
+            num_pages = 1  # Valor por defecto si no se proporciona
         base_url = self.base_url.get(country_code.upper())
         if not base_url:
             print(f"Advertencia: Código de país '{country_code}' no encontrado en base_url. No se generarán URLs para {zip_code}.")
@@ -53,6 +55,7 @@ class AutoScout24Scraper:
                                           self.power_from, self.power_to, self.powertype, zip_code, self.zipr) +
                           f"&page={i}&sort=standard&source=listpage_pagination&ustate=N%2CU")
             url_list.append(url_to_add)
+            print(f"URL generada: {url_to_add}")
         return url_list
 
     def scrape(self, num_pages, verbose=False):

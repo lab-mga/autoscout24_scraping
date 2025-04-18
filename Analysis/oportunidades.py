@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import pandas as pd
-from models.resultado_Scrap import CocheModel
+from models.resultado_scrap import CocheModel
 from models.resultado_oportunidades import AnalisisCocheModel
 
 

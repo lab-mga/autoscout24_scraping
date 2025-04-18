@@ -98,3 +98,14 @@ class CocheModel:
             conn.commit()
         finally:
             conn.close()
+
+
+    @staticmethod
+    def eliminar_todos():
+        conn = get_connection()
+        try:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM coches")
+            conn.commit()
+        finally:
+            conn.close()

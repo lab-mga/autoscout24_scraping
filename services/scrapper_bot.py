@@ -4,9 +4,10 @@ from Analysis.MileagePriceRegression import MileagePriceRegression
 from Miner.TextFileHandler import TextFileHandler
 from models.regiones import RegionDAO
 import os
+from models.resultado_scrap import CocheModel
 
 class ScrapperBot:
-    def __init__(self, make="volkswagen", model="golf-(alle)", version="", year_from="2018", year_to="2024",
+    def __init__(self, make="", model="", version="", year_from="", year_to="",
                  power_from="", power_to="", powertype="kw", num_pages=1, zipr=250):
         self.make = make
         self.model = model
@@ -16,7 +17,7 @@ class ScrapperBot:
         self.power_from = power_from
         self.power_to = power_to
         self.powertype = powertype
-        self.num_pages = num_pages
+        self.num_pages = num_pages  # Should be int or None
         self.zipr = zipr
 
         self.downloaded_listings_file = f'listings/listings_{self.make}_{self.model}.csv'
@@ -28,8 +29,22 @@ class ScrapperBot:
             os.makedirs("listings")
 
     @classmethod
-    def run(cls):
-        bot = cls()
+    def run(cls, make="", model="", version="", year_from="", year_to="",
+            power_from="", power_to="", powertype="kw", num_pages=1, zipr=250):
+        bot = cls(
+            make=make,
+            model=model,
+            version=version,
+            year_from=year_from,
+            year_to=year_to,
+            power_from=power_from,
+            power_to=power_to,
+            powertype=powertype,
+            num_pages=num_pages,
+            zipr=zipr
+        )
+        # Eliminar todos los registros de resultado_scrapp antes de iniciar el scraping
+        CocheModel.eliminar_todos()
         # Llamar a get_all_regions sin argumentos
         zip_list = RegionDAO.get_all_regions()
 
@@ -42,8 +57,7 @@ class ScrapperBot:
 
         """
 
-            # Aquí puedes añadir lógica de análisis adicional
-
+        # Aquí puedes añadir lógica de análisis adicional
 
     ## Hay que refactorizar todo esto, hay que ver que me hace falta y que no.
     def preprocess(self):
@@ -68,6 +82,6 @@ class ScrapperBot:
         #scraper.filter_cars(self.oportunities_file)
         # Esta línea de guardar, hay que matarla y guardar en bbdd
         #scraper.save_to_csv(self.downloaded_listings_file)
-        scraper.quit_browser()
+        scraper.quit_browser
 
 

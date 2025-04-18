@@ -1,3 +1,7 @@
 /listings/
 __pycache__/
+<<<<<<< HEAD
 *.pyc
+=======
+*.pyc
+>>>>>>> 259e839520b538aca3826f4a78cd46dd2272b768
