@@ -1,6 +1,17 @@
-from db import get_connection
+from repositories.db import get_connection
 
 class CocheModel:
+    def __init__(self, marca, modelo, kilometraje, tipo_combustible, fecha_registro, precio, url, pais, kilometraje_grupo):
+        self.marca = marca
+        self.modelo = modelo
+        self.kilometraje = kilometraje
+        self.tipo_combustible = tipo_combustible
+        self.fecha_registro = fecha_registro
+        self.precio = precio
+        self.url = url
+        self.pais = pais
+        self.kilometraje_grupo = kilometraje_grupo
+
     @staticmethod
     def obtener_todos():
         conn = get_connection()
@@ -13,15 +24,24 @@ class CocheModel:
         finally:
             conn.close()
 
-    @staticmethod
-    def insertar_coche(marca, modelo, kilometraje, tipo_combustible, fecha_registro, precio, url, pais, kilometraje_grupo):
+    def insertar_coche(self):
         conn = get_connection()
         try:
             cursor = conn.cursor()
             cursor.execute("""
                 INSERT INTO coches (marca, modelo, kilometraje, tipo_combustible, fecha_registro, precio, url, pais, kilometraje_grupo)
                 VALUES (:1, :2, :3, :4, TO_DATE(:5, 'YYYY-MM-DD'), :6, :7, :8, :9)
-            """, (marca, modelo, kilometraje, tipo_combustible, fecha_registro, precio, url, pais, kilometraje_grupo))
+            """, (
+                self.marca,
+                self.modelo,
+                self.kilometraje,
+                self.tipo_combustible,
+                self.fecha_registro,
+                self.precio,
+                self.url,
+                self.pais,
+                self.kilometraje_grupo
+            ))
             conn.commit()
         finally:
             conn.close()
@@ -29,28 +49,26 @@ class CocheModel:
     @staticmethod
     def insertar_bulk(lista_coches):
         """
-        Inserta una lista de diccionarios con datos de coches en la tabla 'coches'.
-        Cada diccionario debe tener las claves:
-        marca, modelo, kilometraje, tipo_combustible, fecha_registro (YYYY-MM-DD), precio, url, pais, kilometraje_grupo
+        Inserta una lista de objetos CocheModel en la tabla 'coches'.
         """
         conn = get_connection()
         try:
             cursor = conn.cursor()
             sql = """
                 INSERT INTO coches (marca, modelo, kilometraje, tipo_combustible, fecha_registro, precio, url, pais, kilometraje_grupo)
-                VALUES (:1, :2, :3, :4, TO_DATE(:5, 'YYYY-MM-DD'), :6, :7, :8, :9)
+                VALUES (:1, :2, :3, :4, :5, :6, :7, :8, :9)
             """
             data = [
                 (
-                    coche["marca"],
-                    coche["modelo"],
-                    coche["kilometraje"],
-                    coche["tipo_combustible"],
-                    coche["fecha_registro"],
-                    coche["precio"],
-                    coche["url"],
-                    coche["pais"],
-                    coche["kilometraje_grupo"]
+                    coche.marca,
+                    coche.modelo,
+                    coche.kilometraje,
+                    coche.tipo_combustible,
+                    coche.fecha_registro,
+                    coche.precio,
+                    coche.url,
+                    coche.pais,
+                    coche.kilometraje_grupo
                 )
                 for coche in lista_coches
             ]
