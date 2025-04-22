@@ -7,7 +7,7 @@ from models.resultado_oportunidades import AnalisisCocheModel
 
 class OportunidadesAnalyzer:
     @classmethod
-    def analizar_oportunidades(cls):
+    def analizar_oportunidades(cls, target_price):
         # Obtener datos desde la base de datos usando CocheModel
         print("Empiezo el análisis de oportunidades")
         coches = CocheModel.obtener_todos()
@@ -22,7 +22,10 @@ class OportunidadesAnalyzer:
         for _, es_car in es_cars.iterrows():
             km_min = es_car['kilometraje'] - 10000
             km_max = es_car['kilometraje'] + 10000
-            price_max = es_car['precio'] * 0.70
+
+            # Calcular el precio máximo permitido en DE, target price es el porcentaje de ahorro,
+            #Si quiero un 20% de ahorro, el param recibe un 20, y el precio máximo es el 80% del precio en ES
+            price_max = es_car['precio'] * (100 - (target_price/100))
 
             # Filtrar por misma marca y modelo además de los criterios existentes
             coincidencias = de_cars[
@@ -30,7 +33,8 @@ class OportunidadesAnalyzer:
                 (de_cars['kilometraje'] <= km_max) &
                 (de_cars['precio'] <= price_max) &
                 (de_cars['marca'] == es_car['marca']) &
-                (de_cars['modelo'] == es_car['modelo'])
+                (de_cars['modelo'] == es_car['modelo']) &
+                (de_cars['caballos'] == es_car['caballos']) 
             ]
 
             if not coincidencias.empty:

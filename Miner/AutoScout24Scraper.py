@@ -5,6 +5,7 @@ import numpy as np
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from models.resultado_scrap import CocheModel
+import re
 
 
 class AutoScout24Scraper:
@@ -28,7 +29,7 @@ class AutoScout24Scraper:
                    "source=homepage_search-mask&ustate=N%2CU&zip={}&zipr={}")
         }
         self.listing_frame = pd.DataFrame(
-            columns=["make", "model", "mileage", "fuel-type", "first-registration", "price", "url", "country"])
+            columns=["make", "model", "mileage", "fuel-type", "first-registration", "price", "url", "country", "hp_ps"])
         self.coches = []  # Nueva lista para objetos CocheModel
         self.options = webdriver.ChromeOptions()
         self.options.add_argument("--incognito")
@@ -95,6 +96,16 @@ class AutoScout24Scraper:
                     data_url_element = listing.find_element(By.XPATH, ".//a[@href]")
                     data_url = data_url_element.get_attribute("href") if data_url_element else None
 
+                    # Extraer el valor de PS o CV SOLO del span dentro del elemento listing actual
+                    try:
+                        speedometer_span = listing.find_element(By.XPATH, ".//span[@data-testid='VehicleDetails-speedometer']")
+                        speedometer_text = speedometer_span.text
+                        # Extraer el número entre paréntesis y antes de 'PS' o 'CV'
+                        match = re.search(r"\((\d+)\s*(PS|CV)\)", speedometer_text)
+                        data_hp_ps = match.group(1) if match else None
+                    except Exception:
+                        data_hp_ps = None
+
                     data_country = None
                     for code, url_pattern in self.base_url.items():
                         domain = url_pattern.split('/')[2]
@@ -115,7 +126,8 @@ class AutoScout24Scraper:
                         "first-registration": data_first_registration,
                         "price": data_price,
                         "url": data_url + ' ' if data_url else None,
-                        "country": data_country
+                        "country": data_country,
+                        "hp_ps": data_hp_ps
                     }
 
                     # Crear y añadir objeto CocheModel a la lista
@@ -128,7 +140,8 @@ class AutoScout24Scraper:
                         precio=data_price,
                         url=data_url,
                         pais=data_country,
-                        kilometraje_grupo=None  # O ajusta según lógica necesaria
+                        kilometraje_grupo=None,
+                        caballos = data_hp_ps
                     )
                     self.coches.append(coche_obj)
 
@@ -187,3 +200,9 @@ class AutoScout24Scraper:
 
     def quit_browser(self):
         self.browser.quit()
+
+        ##Redondea 
+    def round(self, df, by):
+        df['mileage'] = df['mileage'].astype(int)
+        df['mileage_grouped'] = (df['mileage'] // by) * by
+        return df

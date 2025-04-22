@@ -1,7 +1,7 @@
 from repositories.db import get_connection
 
 class CocheModel:
-    def __init__(self, marca, modelo, kilometraje, tipo_combustible, fecha_registro, precio, url, pais, kilometraje_grupo):
+    def __init__(self, marca, modelo, kilometraje, tipo_combustible, fecha_registro, precio, url, pais, kilometraje_grupo, caballos):
         self.marca = marca
         self.modelo = modelo
         self.kilometraje = kilometraje
@@ -11,6 +11,8 @@ class CocheModel:
         self.url = url
         self.pais = pais
         self.kilometraje_grupo = kilometraje_grupo
+        self.caballos = caballos
+        
 
     @staticmethod
     def obtener_todos():
@@ -29,8 +31,8 @@ class CocheModel:
         try:
             cursor = conn.cursor()
             cursor.execute("""
-                INSERT INTO coches (marca, modelo, kilometraje, tipo_combustible, fecha_registro, precio, url, pais, kilometraje_grupo)
-                VALUES (:1, :2, :3, :4, TO_DATE(:5, 'YYYY-MM-DD'), :6, :7, :8, :9)
+                INSERT INTO coches (marca, modelo, kilometraje, tipo_combustible, fecha_registro, precio, url, pais, kilometraje_grupo, caballos)
+                VALUES (:1, :2, :3, :4, TO_DATE(:5, 'YYYY-MM-DD'), :6, :7, :8, :9, :10)
             """, (
                 self.marca,
                 self.modelo,
@@ -40,7 +42,8 @@ class CocheModel:
                 self.precio,
                 self.url,
                 self.pais,
-                self.kilometraje_grupo
+                self.kilometraje_grupo,
+                self.caballos
             ))
             conn.commit()
         finally:
@@ -55,8 +58,8 @@ class CocheModel:
         try:
             cursor = conn.cursor()
             sql = """
-                INSERT INTO coches (marca, modelo, kilometraje, tipo_combustible, fecha_registro, precio, url, pais, kilometraje_grupo)
-                VALUES (:1, :2, :3, :4, :5, :6, :7, :8, :9)
+                INSERT INTO coches (marca, modelo, kilometraje, tipo_combustible, fecha_registro, precio, url, pais, kilometraje_grupo, caballos)
+                VALUES (:1, :2, :3, :4, :5, :6, :7, :8, :9, :10)
             """
             data = [
                 (
@@ -68,7 +71,8 @@ class CocheModel:
                     coche.precio,
                     coche.url,
                     coche.pais,
-                    coche.kilometraje_grupo
+                    coche.kilometraje_grupo,
+                    coche.caballos
                 )
                 for coche in lista_coches
             ]
@@ -106,6 +110,17 @@ class CocheModel:
         try:
             cursor = conn.cursor()
             cursor.execute("DELETE FROM coches")
+            conn.commit()
+        finally:
+            conn.close()
+
+    ##TODO: Implementar el método para historificar los coches, hay que ver tambien como hago para no duplicar
+    @staticmethod
+    def historificar():
+        conn = get_connection()
+        try:
+            cursor = conn.cursor()
+            cursor.execute("select 1 from dual")
             conn.commit()
         finally:
             conn.close()
